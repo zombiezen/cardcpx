@@ -1,0 +1,9 @@
+[X] ETA
+[X] Select takes UI
+[X] Import selects first
+[ ] Warn about conflicting take names
+[X] Take editor
+[X] CSV cleanup tool
+[X] Remember last import path
+[X] Skip directories in import layout
+[X] Stop using ngResource

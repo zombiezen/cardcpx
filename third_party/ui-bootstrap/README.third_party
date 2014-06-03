@@ -7,4 +7,4 @@ Description:
 AngularJS directives specific to Bootstrap.
 
 Local Modifications:
-No Modifications.
+Built ui-bootstrap into dist directory.

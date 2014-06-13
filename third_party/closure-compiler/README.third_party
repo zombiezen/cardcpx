@@ -7,4 +7,5 @@ Description:
 The Closure Compiler minifies and optimizes JavaScript.
 
 Local Modifications:
-No modifications.
+Expose the remove_unused_prototype_props_in_externs, export_local_property_definitions, and
+property_renaming flags.

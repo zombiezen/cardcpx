@@ -453,6 +453,18 @@ public class CommandLineRunner extends
         usage = "In development new type inference pass. DO NOT USE!")
     private boolean useNewTypeInference = false;
 
+    @Option(name = "--property_renaming",
+        usage = "Property renaming policy.")
+    private PropertyRenamingPolicy propertyRenaming = PropertyRenamingPolicy.UNSPECIFIED;
+
+    @Option(name = "--remove_unused_prototype_props_in_externs",
+        usage = "Remove unused externed prototype properties.")
+    private boolean removeUnusedPrototypePropertiesInExterns = false;
+
+    @Option(name = "--export_local_property_definitions",
+        usage = "Export properties annotated with @export.")
+    private boolean exportLocalPropertyDefinitions = false;
+
     @Argument
     private List<String> arguments = new ArrayList<>();
 
@@ -986,6 +998,12 @@ public class CommandLineRunner extends
         flags.processJqueryPrimitives;
 
     options.angularPass = flags.angularPass;
+
+    options.removeUnusedPrototypePropertiesInExterns = flags.removeUnusedPrototypePropertiesInExterns;
+
+    options.propertyRenaming = flags.propertyRenaming;
+
+    options.exportLocalPropertyDefinitions = flags.exportLocalPropertyDefinitions;
 
     if (!flags.translationsFile.isEmpty()) {
       try {

@@ -1,1 +1,4 @@
-build
+/build
+/cardcpx
+/ui/js.js
+/third_party/closure-compiler/build

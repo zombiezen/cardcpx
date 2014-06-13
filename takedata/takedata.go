@@ -19,7 +19,7 @@ package takedata
 import (
 	"sort"
 
-	"zombiezen/cardcpx/natsort"
+	"bitbucket.org/zombiezen/cardcpx/natsort"
 )
 
 // ID is a unique identifier for a take.

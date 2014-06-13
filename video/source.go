@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"zombiezen/cardcpx/natsort"
+	"bitbucket.org/zombiezen/cardcpx/natsort"
 )
 
 type Source interface {

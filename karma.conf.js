@@ -29,12 +29,12 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'angular-1.2.15/angular.js',
-      'angular-1.2.15/angular-cookies.js',
-      'angular-1.2.15/angular-mocks.js',
-      'angular-1.2.15/angular-route.js',
-      'ui/ui-bootstrap.min.js',
-      'ui/base.js',
+      'third_party/angular/angular.js',
+      'third_party/angular/angular-cookies.js',
+      'third_party/angular/angular-mocks.js',
+      'third_party/angular/angular-route.js',
+      'third_party/ui-bootstrap/dist/ui-bootstrap-tpls-0.11.0.min.js',
+      'third_party/closure-library/closure/goog/base.js',
       'ui/**/*_test.js',
       {pattern: 'ui/**/*.js', included: false},
     ],

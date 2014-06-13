@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"zombiezen/cardcpx/video"
+	"bitbucket.org/zombiezen/cardcpx/video"
 )
 
 // TODO(light): this doesn't test large files

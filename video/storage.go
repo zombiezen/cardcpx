@@ -22,7 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"zombiezen/cardcpx/multiwriter"
+	"bitbucket.org/zombiezen/cardcpx/multiwriter"
 )
 
 // Storage is a write-only blob store.  filepath paths are used.

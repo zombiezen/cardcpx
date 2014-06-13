@@ -26,7 +26,7 @@ import (
 	"runtime"
 	"strings"
 
-	"zombiezen/cardcpx/netutil"
+	"bitbucket.org/zombiezen/cardcpx/netutil"
 )
 
 var kBasicAuthPattern = regexp.MustCompile(`^Basic ([a-zA-Z0-9\+/=]+)`)

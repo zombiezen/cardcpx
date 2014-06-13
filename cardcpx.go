@@ -27,12 +27,12 @@ import (
 	"strings"
 	"sync"
 
+	"bitbucket.org/zombiezen/cardcpx/httputil"
+	"bitbucket.org/zombiezen/cardcpx/importer"
+	"bitbucket.org/zombiezen/cardcpx/takedata"
+	"bitbucket.org/zombiezen/cardcpx/video"
 	"bitbucket.org/zombiezen/webapp"
 	"github.com/gorilla/mux"
-	"zombiezen/cardcpx/httputil"
-	"zombiezen/cardcpx/importer"
-	"zombiezen/cardcpx/takedata"
-	"zombiezen/cardcpx/video"
 )
 
 var (

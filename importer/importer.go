@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"zombiezen/cardcpx/video"
+	"bitbucket.org/zombiezen/cardcpx/video"
 )
 
 var estimatedMiBps = flag.Int64("estImportRate", 60, "estimated import rate (in MiB/s)")

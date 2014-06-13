@@ -458,10 +458,12 @@ public class CommandLineRunner extends
     private PropertyRenamingPolicy propertyRenaming = PropertyRenamingPolicy.UNSPECIFIED;
 
     @Option(name = "--remove_unused_prototype_props_in_externs",
+        handler = BooleanOptionHandler.class,
         usage = "Remove unused externed prototype properties.")
     private boolean removeUnusedPrototypePropertiesInExterns = false;
 
     @Option(name = "--export_local_property_definitions",
+        handler = BooleanOptionHandler.class,
         usage = "Export properties annotated with @export.")
     private boolean exportLocalPropertyDefinitions = false;
 

@@ -1,6 +1,6 @@
 # cardcpx
 
-cardcpx is a specialized UI for copying files from an camera card to 1+ replicas.  The replica
+cardcpx is a specialized UI for copying files from a camera card to 1+ replicas.  The replica
 copies happen concurrently, so if you are copying N bytes to R replicas, the time is O(N) instead of
 O(N * R).
 

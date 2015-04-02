@@ -107,9 +107,14 @@ func TestWriteDeleteCSVStorage(t *testing.T) {
 	}
 	checkDeleted(t, s, ID{"1", "2"})
 	bs := buf.String()
-	const want = "1,2,\"\",FALSE,TRUE\n"
-	if bs != want {
-		t.Errorf("CSV data = %q, want %q", bs, want)
+
+	// Go 1.4 changed empty cell quoting rules, so accept either.
+	const (
+		want12 = "1,2,\"\",FALSE,TRUE\n"
+		want14 = "1,2,,FALSE,TRUE\n"
+	)
+	if !(bs == want12 || bs == want14) {
+		t.Errorf("CSV data = %q, want %q or %q", bs, want12, want14)
 	}
 }
 

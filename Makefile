@@ -109,4 +109,7 @@ clean:
 	rm -rf build
 	rm -f cardcpx ui/js.js
 
-.PHONY: all clean build/closure-compiler.jar
+test:
+	$(GOTOOL) test ./httputil ./importer ./multiwriter ./natsort ./netutil ./takedata
+
+.PHONY: all clean build/closure-compiler.jar test

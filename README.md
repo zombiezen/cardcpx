@@ -1,5 +1,7 @@
 # cardcpx
 
+[![Build Status](https://travis-ci.org/zombiezen/cardcpx.svg?branch=master)](https://travis-ci.org/zombiezen/cardcpx)
+
 cardcpx is a specialized UI for copying files from a camera card to 1+ replicas.  The replica
 copies happen concurrently, so if you are copying N bytes to R replicas, the time is O(N) instead of
 O(N * R).

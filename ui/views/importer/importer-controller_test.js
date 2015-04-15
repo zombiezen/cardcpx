@@ -62,7 +62,7 @@ describe('ImporterCtrl', function() {
         deferred.resolve(null);
         return deferred.promise;
       };
-      spyOn(this, 'startImport').andCallThrough();
+      spyOn(this, 'startImport').and.callThrough();
     });
   }));
 

@@ -115,6 +115,6 @@ testgo:
 	$(GOTOOL) test ./httputil ./importer ./multiwriter ./natsort ./netutil ./takedata
 
 testkarma:
-	./node_modules/karma/bin/karma start --single-run --browsers PhantomJS
+	node_modules/karma/bin/karma start --single-run --browsers PhantomJS
 
 .PHONY: all clean build/closure-compiler.jar test testgo testkarma

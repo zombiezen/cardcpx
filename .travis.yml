@@ -2,6 +2,6 @@ language: go
 
 go:
 - 1.2
-- tip
+- 1.4
 
 script: make all test

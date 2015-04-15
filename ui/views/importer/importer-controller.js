@@ -418,7 +418,8 @@ cardcpx.importer.ImporterCtrl.prototype.checkedSize = function() {
  * @export
  */
 cardcpx.importer.ImporterCtrl.prototype.startImport = function() {
-  this.importer_.startImport(this.path, this.getItemsToImport_());
+  // TODO(light): add subdirectory
+  this.importer_.startImport(this.path, '', this.getItemsToImport_());
   this.schedulePoll_();
 };
 

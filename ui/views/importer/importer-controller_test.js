@@ -54,8 +54,9 @@ describe('ImporterCtrl', function() {
       this.setStatus = function(s) {
         stat = s;
       };
-      this.startImport = function(path, items) {
+      this.startImport = function(path, subdir, items) {
         this.path = path;
+        this.subdir = subdir;
         this.items = items;
 
         var deferred = $q.defer();

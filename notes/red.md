@@ -7,7 +7,7 @@ Given a path `A002_0908FT.RDM/A002_C001_0908R4.RDC/A002_C001_0908R4_003.R3D`:
 * `C001` is clip/take #1
 * `R4` and `FT` are arbitrary hex distinguishers to make them unique-ish
 * `003` indicates that this is the 3rd chunk of the R3D clip.  Each clip can be
->4GB, so the RED camera splits them up into 2GB chunks.
+  \>4GB, so the RED camera splits them up into 2GB chunks.
 
 ## Example
 

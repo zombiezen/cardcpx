@@ -18,8 +18,11 @@ package importer
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"io"
+	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -32,15 +35,18 @@ func estimateTime(n, written int64, elapsed time.Duration) time.Duration {
 	return time.Duration(float64(n) * float64(elapsed) / float64(written))
 }
 
+// ErrBadSubdir is returned from the status when attempting to import into a bad subdirectory.
+var ErrBadSubdir = errors.New("cardcpx: importer: invalid subdirectory")
+
 // An Importer copies files from a video source to video storage.
 type Importer struct {
 	s       video.Storage
 	ncopied int64
 	elapsed time.Duration
 
+	m       sync.Mutex
 	status  Status
 	updates chan *Status
-	m       sync.Mutex
 }
 
 // New returns an importer that copies to storage s.
@@ -81,7 +87,7 @@ func (imp *Importer) Status() *Status {
 }
 
 // Import copies the files specified by clips from src into its storage.
-func (imp *Importer) Import(src video.Source, clips []*video.Clip) *Status {
+func (imp *Importer) Import(src video.Source, subdir string, clips []*video.Clip) *Status {
 	updates := imp.init(clips)
 	defer func() {
 		imp.m.Lock()
@@ -96,7 +102,7 @@ func (imp *Importer) Import(src video.Source, clips []*video.Clip) *Status {
 		var clipWritten int64
 		for _, file := range clip.Paths {
 			var fileWritten int64
-			fileWritten, result.Error = imp.copy(src, file, updates)
+			fileWritten, result.Error = imp.copy(src, subdir, file, updates)
 			clipWritten += fileWritten
 			if result.Error != nil {
 				imp.status.BytesTotal -= clip.TotalSize - clipWritten
@@ -106,7 +112,7 @@ func (imp *Importer) Import(src video.Source, clips []*video.Clip) *Status {
 		result.End = time.Now()
 		imp.ncopied += clipWritten
 		imp.elapsed += result.End.Sub(result.Start)
-		imp.status.ETA = result.End.Add(estimateTime(imp.status.BytesTotal - imp.status.BytesCopied, imp.ncopied, imp.elapsed))
+		imp.status.ETA = result.End.Add(estimateTime(imp.status.BytesTotal-imp.status.BytesCopied, imp.ncopied, imp.elapsed))
 		imp.status.Pending = imp.status.Pending[1:]
 		imp.status.Results = append(imp.status.Results, result)
 		select {
@@ -125,13 +131,21 @@ func (imp *Importer) newStatus() *Status {
 	return st
 }
 
-func (imp *Importer) copy(src video.Source, file string, updates chan<- *Status) (int64, error) {
+func (imp *Importer) copy(src video.Source, subdir, file string, updates chan<- *Status) (int64, error) {
 	r, err := src.Open(file)
 	if err != nil {
 		return 0, err
 	}
 	defer r.Close()
-	w, err := imp.s.Store(file)
+	outfile := file
+	if subdir != "" {
+		subdir = filepath.Clean(subdir)
+		if filepath.IsAbs(subdir) || subdir == ".." || strings.HasPrefix(subdir, ".."+string(filepath.Separator)) {
+			return 0, ErrBadSubdir
+		}
+		outfile = filepath.Join(subdir, outfile)
+	}
+	w, err := imp.s.Store(outfile)
 	if err != nil {
 		return 0, err
 	}

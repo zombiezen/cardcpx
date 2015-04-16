@@ -109,12 +109,12 @@ clean:
 	rm -rf build
 	rm -f cardcpx ui/js.js
 
-test: testgo testkarma
+test: testgo testjs
 
 testgo:
 	$(GOTOOL) test ./httputil ./importer ./multiwriter ./natsort ./netutil ./takedata
 
-testkarma:
+testjs:
 	node_modules/karma/bin/karma start --single-run --browsers PhantomJS
 
-.PHONY: all clean build/closure-compiler.jar test testgo testkarma
+.PHONY: all clean build/closure-compiler.jar test testgo testjs

@@ -118,7 +118,7 @@ func openVideoStorage() video.Storage {
 func handleImports() {
 	for job := range impChan {
 		log.Printf("Importing %d clips from %s (%d bytes)", len(job.Items), job.Path, job.Size())
-		st := imp.Import(job.Src, job.Clips())
+		st := imp.Import(job.Src, job.Subdirectory, job.Clips())
 		for _, result := range st.Results {
 			if result.Error != nil {
 				log.Printf("Import failed for %s: %v", result.Clip.Name, result.Error)
@@ -245,7 +245,7 @@ func updateTake(w http.ResponseWriter, req *http.Request) error {
 	v := mux.Vars(req)
 	id := takedata.ID{
 		Scene: v["scene"],
-		Num: v["num"],
+		Num:   v["num"],
 	}
 	if err := takeStorage.UpdateTake(id, &take); err != nil {
 		if _, ok := err.(*takedata.NotFoundError); !ok {
@@ -353,9 +353,10 @@ func startImport(w http.ResponseWriter, req *http.Request) error {
 }
 
 type importJob struct {
-	Path  string       `json:"path"`
-	Src   video.Source `json:"-"`
-	Items []importItem `json:"items"`
+	Path         string       `json:"path"`
+	Src          video.Source `json:"-"`
+	Subdirectory string       `json:"subdirectory"`
+	Items        []importItem `json:"items"`
 }
 
 func (job *importJob) Size() (size int64) {

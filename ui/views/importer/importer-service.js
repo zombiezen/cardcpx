@@ -49,19 +49,21 @@ cardcpx.importer.Importer.prototype.getStatus = function() {
  * Call the server to start an import.
  *
  * @param {string} path directory to import from
+ * @param {string} subdir subdirectory to store clips in
  * @param {Array.<Object>} items items to import
  * @return {!angular.$q.Promise}
  */
-cardcpx.importer.Importer.prototype.startImport = function(path, items) {
-  return this.http_.post('/import', {path: path, items: items}).
-      then(function(response) {
-        if (response.status != 200) {
-          throw "importer HTTP status " + response.status;
-        }
-        var data = response.data;
-        if (data.code != 200) {
-          throw "importer error code " + data.code + ": " + data.errorMessage;
-        }
-        return null;
-      });
+cardcpx.importer.Importer.prototype.startImport =
+    function(path, subdir, items) {
+  var postData = {'path': path, 'subdirectory': subdir, 'items': items};
+  return this.http_.post('/import', postData).then(function(response) {
+    if (response.status != 200) {
+      throw "importer HTTP status " + response.status;
+    }
+    var data = response.data;
+    if (data.code != 200) {
+      throw "importer error code " + data.code + ": " + data.errorMessage;
+    }
+    return null;
+  });
 };

@@ -118,7 +118,7 @@ func openVideoStorage() video.Storage {
 func handleImports() {
 	for job := range impChan {
 		log.Printf("Importing %d clips from %s (%d bytes)", len(job.Items), job.Path, job.Size())
-		st := imp.Import(job.Src, job.Clips())
+		st := imp.Import(job.Src, job.Subdirectory, job.Clips())
 		for _, result := range st.Results {
 			if result.Error != nil {
 				log.Printf("Import failed for %s: %v", result.Clip.Name, result.Error)

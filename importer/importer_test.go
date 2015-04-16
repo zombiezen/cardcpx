@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -55,10 +56,10 @@ func TestImport(t *testing.T) {
 			"bar/2": bar2Data,
 		},
 	}
-	s := &fakeStorage{files: make(map[string]*closeBuffer)}
+	s := newFakeStorage()
 	imp := New(s)
 
-	st := imp.Import(src, src.clips)
+	st := imp.Import(src, "", src.clips)
 
 	want := &Status{
 		Active:      false,
@@ -90,6 +91,115 @@ func TestImport(t *testing.T) {
 			t.Errorf("did not write to %s", path)
 		} else if s := buf.String(); s != want {
 			t.Errorf("stored %q to %s, want %q", s, path, want)
+		}
+	}
+}
+
+func TestImport_Subdir(t *testing.T) {
+	src := &fakeSource{
+		clips: []*video.Clip{
+			{
+				Name: "foo",
+				Paths: []string{
+					"foo/1",
+					"foo/2",
+				},
+				TotalSize: int64(len(foo1Data) + len(foo2Data)),
+			},
+			{
+				Name: "bar",
+				Paths: []string{
+					"bar/1",
+					"bar/2",
+				},
+				TotalSize: int64(len(bar1Data) + len(bar2Data)),
+			},
+		},
+		files: map[string]string{
+			"foo/1": foo1Data,
+			"foo/2": foo2Data,
+			"bar/1": bar1Data,
+			"bar/2": bar2Data,
+		},
+	}
+	s := newFakeStorage()
+	imp := New(s)
+
+	st := imp.Import(src, "SUB", src.clips)
+
+	want := &Status{
+		Active:      false,
+		BytesCopied: int64(totalDataSize),
+		BytesTotal:  int64(totalDataSize),
+		Pending:     []*video.Clip{},
+		Results: []Result{
+			{
+				Clip:  src.clips[0],
+				Error: nil,
+			},
+			{
+				Clip:  src.clips[1],
+				Error: nil,
+			},
+		},
+	}
+	if !statusEq(st, want) {
+		t.Errorf("Import(...) =\n%+v, want\n%+v", st, want)
+	}
+
+	for path, want := range src.files {
+		outpath := filepath.Join("SUB", path)
+		buf := s.files[outpath]
+		if buf == nil {
+			t.Errorf("did not write to %s", outpath)
+		} else if s := buf.String(); s != want {
+			t.Errorf("stored %q to %s, want %q", s, outpath, want)
+		}
+	}
+}
+
+func TestImport_SubdirParentsFail(t *testing.T) {
+	src := &fakeSource{
+		clips: []*video.Clip{
+			{
+				Name: "foo",
+				Paths: []string{
+					"foo/1",
+				},
+				TotalSize: int64(len(foo1Data)),
+			},
+		},
+		files: map[string]string{
+			"foo/1": foo1Data,
+		},
+	}
+	want := &Status{
+		Active:      false,
+		BytesCopied: int64(0),
+		BytesTotal:  int64(0),
+		Pending:     []*video.Clip{},
+		Results: []Result{
+			{
+				Clip:  src.clips[0],
+				Error: ErrBadSubdir,
+			},
+		},
+	}
+	checks := []string{
+		"..",
+		"../..",
+		"../foo",
+		"../foo/..",
+		"/foo/bar",
+		"foo/../../..",
+		"foo/../../../etc/passwd",
+	}
+
+	for _, subdir := range checks {
+		st := New(newFakeStorage()).Import(src, subdir, src.clips)
+
+		if !statusEq(st, want) {
+			t.Errorf("New(...).Import(src, %q, src.clips) =\n%+v, want\n%+v", subdir, st, want)
 		}
 	}
 }
@@ -174,6 +284,10 @@ func (src *fakeSource) Open(path string) (io.ReadCloser, error) {
 
 type fakeStorage struct {
 	files map[string]*closeBuffer
+}
+
+func newFakeStorage() *fakeStorage {
+	return &fakeStorage{make(map[string]*closeBuffer)}
 }
 
 func (s *fakeStorage) Store(path string) (io.WriteCloser, error) {

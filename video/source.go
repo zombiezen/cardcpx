@@ -37,13 +37,24 @@ type Clip struct {
 }
 
 type dirStructSource struct {
-	root    string
-	f       func(path string) (clip string, ok bool)
-	descend func(path string) bool
+	root   string
+	fs     filesystem
+	layout layout
+}
+
+type filesystem interface {
+	open(path string) (io.ReadCloser, error)
+	walk(root string, f filepath.WalkFunc) error
+	readdirnames(path string) ([]string, error)
+}
+
+type layout interface {
+	clipName(path string) (clip string, ok bool)
+	descend(path string) bool
 }
 
 func (src *dirStructSource) Open(path string) (io.ReadCloser, error) {
-	return os.Open(filepath.Join(src.root, path))
+	return src.fs.open(filepath.Join(src.root, path))
 }
 
 func (src *dirStructSource) List() ([]*Clip, error) {
@@ -62,18 +73,18 @@ func (src *dirStructSource) List() ([]*Clip, error) {
 
 func (src *dirStructSource) walk() (map[string]*Clip, error) {
 	m := make(map[string]*Clip)
-	err := filepath.Walk(src.root, func(path string, info os.FileInfo, err error) error {
+	err := src.fs.walk(src.root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			// TODO(light): is there anything we can handle?
 			return err
 		}
 		normPath := strings.TrimLeft(strings.TrimPrefix(path, src.root), string(filepath.Separator))
-		if normPath != "" && info.IsDir() && !src.descend(normPath) {
+		if normPath != "" && info.IsDir() && !src.layout.descend(normPath) {
 			return filepath.SkipDir
 		} else if !info.Mode().IsRegular() {
 			return nil
 		}
-		clipName, ok := src.f(normPath)
+		clipName, ok := src.layout.clipName(normPath)
 		if ok {
 			clip := m[clipName]
 			if clip == nil {
@@ -90,36 +101,44 @@ func (src *dirStructSource) walk() (map[string]*Clip, error) {
 
 // DirectorySource returns a Source from the given directory, automatically inferring clip layout.
 func DirectorySource(root string) (Source, error) {
+	return newDirStructSource(root, osFilesystem{})
+}
+
+func newDirStructSource(root string, fs filesystem) (Source, error) {
 	src := &dirStructSource{
-		root:    root,
-		f:       flatFileLayout,
-		descend: func(string) bool { return false },
+		root:   root,
+		fs:     fs,
+		layout: flatFileLayout{},
 	}
-	dir, err := os.Open(root)
-	if err != nil {
-		return nil, err
-	}
-	names, err := dir.Readdirnames(-1)
+	names, err := fs.readdirnames(root)
 	if err != nil {
 		return nil, err
 	}
 	for _, name := range names {
 		if isRDMName(name) {
-			src.f, src.descend = redLayout, redDescend
+			src.layout = redLayout{}
 			break
 		}
 	}
 	return src, nil
 }
 
-func flatFileLayout(path string) (clip string, ok bool) {
+type flatFileLayout struct{}
+
+func (flatFileLayout) clipName(path string) (clip string, ok bool) {
 	if strings.ContainsRune(path, filepath.Separator) || strings.HasPrefix(path, ".") {
 		return "", false
 	}
 	return path, true
 }
 
-func redLayout(path string) (clip string, ok bool) {
+func (flatFileLayout) descend(path string) bool {
+	return false
+}
+
+type redLayout struct{}
+
+func (redLayout) clipName(path string) (clip string, ok bool) {
 	parts := strings.Split(path, string(filepath.Separator))
 	if len(parts) != 3 {
 		return "", false
@@ -130,7 +149,7 @@ func redLayout(path string) (clip string, ok bool) {
 	return filepath.Join(parts[0], parts[1]), true
 }
 
-func redDescend(path string) bool {
+func (redLayout) descend(path string) bool {
 	parts := strings.Split(path, string(filepath.Separator))
 	if len(parts) > 2 {
 		return false
@@ -150,4 +169,24 @@ func isRDMName(name string) bool {
 
 func isRDCName(name string) bool {
 	return strings.HasSuffix(name, ".RDC") || strings.HasSuffix(name, ".rdc")
+}
+
+type osFilesystem struct{}
+
+func (osFilesystem) open(name string) (io.ReadCloser, error) {
+	return os.Open(name)
+}
+
+func (osFilesystem) walk(root string, f filepath.WalkFunc) error {
+	return filepath.Walk(root, f)
+}
+
+func (osFilesystem) readdirnames(path string) ([]string, error) {
+	dir, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	names, err := dir.Readdirnames(-1)
+	dir.Close()
+	return names, err
 }

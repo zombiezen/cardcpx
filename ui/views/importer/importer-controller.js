@@ -82,6 +82,12 @@ cardcpx.importer.ImporterCtrl = function(
   }
 
   /**
+   * @export
+   * @type {!string}
+   */
+  this.subdir = '';
+
+  /**
    * Whether or not an import is allowed.
    * @export
    * @type {boolean}
@@ -418,8 +424,7 @@ cardcpx.importer.ImporterCtrl.prototype.checkedSize = function() {
  * @export
  */
 cardcpx.importer.ImporterCtrl.prototype.startImport = function() {
-  // TODO(light): add subdirectory
-  this.importer_.startImport(this.path, '', this.getItemsToImport_());
+  this.importer_.startImport(this.path, this.subdir, this.getItemsToImport_());
   this.schedulePoll_();
 };
 

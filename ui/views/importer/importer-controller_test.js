@@ -208,6 +208,7 @@ describe('ImporterCtrl', function() {
     ctrl.startImport();
     expect(Importer.startImport).toHaveBeenCalled();
     expect(Importer.path).toEqual('/foo');
+    expect(Importer.subdir).toEqual('');
     expect(Importer.items).toEqual([
       {
         clip: clips[1],
@@ -222,6 +223,21 @@ describe('ImporterCtrl', function() {
         select: false
       },
     ]);
+
+    // TODO(light): check progress
+    $timeout.flush();
+  }));
+
+  it('starts the import with a subdirectory', inject(function(Importer) {
+    var ctrl = this.newCtrl('/foo');
+    $httpBackend.flush();
+    $timeout.flush();
+    ctrl.subdir = 'SUB';
+
+    ctrl.startImport();
+
+    expect(Importer.startImport).toHaveBeenCalled();
+    expect(Importer.subdir).toEqual('SUB');
 
     // TODO(light): check progress
     $timeout.flush();

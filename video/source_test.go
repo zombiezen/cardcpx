@@ -132,7 +132,7 @@ func TestDirectorySource_List(t *testing.T) {
 			includeRedMagazine: true,
 			clips: []*Clip{
 				{
-					Name: "digital_magazine",
+					Name: "A002_0908FT.RDM digital_magazine",
 					Paths: []string{
 						"digital_magazine.bin",
 						"digital_magdynamic.bin",

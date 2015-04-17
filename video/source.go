@@ -119,7 +119,7 @@ func newDirStructSource(root string, fs filesystem) (Source, error) {
 	}
 	for _, name := range names {
 		if isRDMName(name) {
-			src.layout = redLayout{}
+			src.layout = redLayout{name}
 			break
 		}
 	}
@@ -139,14 +139,15 @@ func (flatFileLayout) descend(path string) bool {
 	return false
 }
 
-type redLayout struct{}
+type redLayout struct {
+	rdmName string
+}
 
-func (redLayout) clipName(path string) (clip string, ok bool) {
+func (red redLayout) clipName(path string) (clip string, ok bool) {
 	parts := strings.Split(path, string(filepath.Separator))
 	if len(parts) == 1 {
-		if *includeRedMagazine && (parts[0] == "digital_magazine.bin" || parts[0] == "digital_magdynamic.bin") {
-			// TODO(light): differentiate based on RDMs
-			return "digital_magazine", true
+		if *includeRedMagazine && isDigitalMagazineName(parts[0]) {
+			return red.rdmName + " digital_magazine", true
 		}
 		return "", false
 	}
@@ -171,6 +172,10 @@ func (redLayout) descend(path string) bool {
 		return false
 	}
 	return true
+}
+
+func isDigitalMagazineName(name string) bool {
+	return name == "digital_magazine.bin" || name == "digital_magdynamic.bin"
 }
 
 func isRDMName(name string) bool {

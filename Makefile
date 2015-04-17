@@ -112,7 +112,7 @@ clean:
 test: testgo testjs
 
 testgo:
-	$(GOTOOL) test ./httputil ./importer ./multiwriter ./natsort ./netutil ./takedata
+	$(GOTOOL) test ./httputil ./importer ./multiwriter ./natsort ./netutil ./takedata ./video
 
 testjs:
 	node_modules/karma/bin/karma start --single-run --browsers PhantomJS

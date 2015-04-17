@@ -17,6 +17,7 @@
 package video
 
 import (
+	"flag"
 	"io"
 	"os"
 	"path/filepath"
@@ -24,6 +25,8 @@ import (
 
 	"bitbucket.org/zombiezen/cardcpx/natsort"
 )
+
+var includeRedMagazine = flag.Bool("includeRedMagazine", false, "(experimental) include digital_magazine.bin files as a clip")
 
 type Source interface {
 	List() ([]*Clip, error)
@@ -140,6 +143,13 @@ type redLayout struct{}
 
 func (redLayout) clipName(path string) (clip string, ok bool) {
 	parts := strings.Split(path, string(filepath.Separator))
+	if len(parts) == 1 {
+		if *includeRedMagazine && (parts[0] == "digital_magazine.bin" || parts[0] == "digital_magdynamic.bin") {
+			// TODO(light): differentiate based on RDMs
+			return "digital_magazine", true
+		}
+		return "", false
+	}
 	if len(parts) != 3 {
 		return "", false
 	}

@@ -31,8 +31,9 @@ const fileSize = 2 * 2 << 30
 
 func TestDirectorySource_List(t *testing.T) {
 	tests := []struct {
-		root string
-		dirs map[string][]string
+		root               string
+		dirs               map[string][]string
+		includeRedMagazine bool
 
 		clips []*Clip
 	}{
@@ -77,6 +78,75 @@ func TestDirectorySource_List(t *testing.T) {
 					Name:      "a.mov",
 					Paths:     []string{"a.mov"},
 					TotalSize: fileSize,
+				},
+			},
+		},
+		{
+			root: "/media/card",
+			dirs: map[string][]string{
+				"/media/card": {
+					"RedDirList.txt",
+					"A002_0908FT.RDM",
+					"digital_magazine.bin",
+					"digital_magdynamic.bin",
+				},
+				"/media/card/A002_0908FT.RDM": {
+					"A002_C001_0908R4.RDC",
+				},
+				"/media/card/A002_0908FT.RDM/A002_C001_0908R4.RDC": {
+					"A002_C001_0908R4_001.R3D",
+					"A002_C001_0908R4_002.R3D",
+					"A002_C001_0908R4_003.R3D",
+				},
+			},
+			clips: []*Clip{
+				{
+					Name: "A002_0908FT.RDM/A002_C001_0908R4.RDC",
+					Paths: []string{
+						"A002_0908FT.RDM/A002_C001_0908R4.RDC/A002_C001_0908R4_001.R3D",
+						"A002_0908FT.RDM/A002_C001_0908R4.RDC/A002_C001_0908R4_002.R3D",
+						"A002_0908FT.RDM/A002_C001_0908R4.RDC/A002_C001_0908R4_003.R3D",
+					},
+					TotalSize: fileSize * 3,
+				},
+			},
+		},
+		{
+			root: "/media/card",
+			dirs: map[string][]string{
+				"/media/card": {
+					"RedDirList.txt",
+					"A002_0908FT.RDM",
+					"digital_magazine.bin",
+					"digital_magdynamic.bin",
+				},
+				"/media/card/A002_0908FT.RDM": {
+					"A002_C001_0908R4.RDC",
+				},
+				"/media/card/A002_0908FT.RDM/A002_C001_0908R4.RDC": {
+					"A002_C001_0908R4_001.R3D",
+					"A002_C001_0908R4_002.R3D",
+					"A002_C001_0908R4_003.R3D",
+				},
+			},
+			includeRedMagazine: true,
+			clips: []*Clip{
+				{
+					Name: "digital_magazine",
+					Paths: []string{
+						"digital_magazine.bin",
+						"digital_magdynamic.bin",
+					},
+					TotalSize: fileSize * 2,
+				},
+				{
+					Name: "A002_0908FT.RDM/A002_C001_0908R4.RDC",
+					Paths: []string{
+						"A002_0908FT.RDM/A002_C001_0908R4.RDC/A002_C001_0908R4_001.R3D",
+						"A002_0908FT.RDM/A002_C001_0908R4.RDC/A002_C001_0908R4_002.R3D",
+						"A002_0908FT.RDM/A002_C001_0908R4.RDC/A002_C001_0908R4_003.R3D",
+					},
+					TotalSize: fileSize * 3,
 				},
 			},
 		},
@@ -285,6 +355,7 @@ func TestDirectorySource_List(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		*includeRedMagazine = test.includeRedMagazine
 		subject := fmt.Sprintf("newDirStructSource(%q, &fakeFilesystem{dirs: %v})",
 			test.root, test.dirs)
 		src, err := newDirStructSource(test.root, &fakeFilesystem{dirs: test.dirs})

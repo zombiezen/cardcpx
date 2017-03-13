@@ -2,11 +2,11 @@
 
 [![Build Status](https://travis-ci.org/zombiezen/cardcpx.svg?branch=master)](https://travis-ci.org/zombiezen/cardcpx)
 
-cardcpx is a specialized UI for copying files from a camera card to 1+ replicas.  The replica
+cardcpx is a specialized UI for copying files from a camera card to one or more replicas.  The replica
 copies happen concurrently, so if you are copying N bytes to R replicas, the time is O(N) instead of
 O(N * R).
 
-The interface also has includes simple scene/take ingestion, which is stored in a CSV transaction
+The interface also includes simple scene/take ingestion, which is stored in a CSV transaction
 log.  Selects will be copied first, so you can do a proofing check on a fast disk while your import
 finishes.
 
